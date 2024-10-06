@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Scratch Jr Extension",
+  "version": "1.0.0",
+  "permissions": [
+    "sidePanel"
+  ],
+  "action": {},
+  "side_panel": {
+    "default_path": "src/sidepanel/index.html"
+  },
+  "content_scripts": [
+    {
+      "js": ["src/content/content.tsx"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
