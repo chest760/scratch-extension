@@ -8,7 +8,6 @@ export const CodeSubmit = () => {
   const isPointerDownRef = useRef(isPointerDown);
   const selectedBlockRef = useRef(selectedBlock);
 
-
   useEffect(() => {
     isPointerDownRef.current = isPointerDown;
   }, [isPointerDown]);
@@ -17,9 +16,10 @@ export const CodeSubmit = () => {
     selectedBlockRef.current = selectedBlock;
   }, [selectedBlock]);
 
+  
   useLayoutEffect(() => {
     const addId = async () => {
-      await sleep(1000);
+      await sleep(2000);
       const palette = document.querySelector(".palette");
       const blocks = palette?.querySelectorAll(":scope > div");
       blocks?.forEach((block, index) => {
@@ -37,52 +37,91 @@ export const CodeSubmit = () => {
           canvas.addEventListener("pointermove", leave);
         });
       });
-
     };
-
+    const observer = new MutationObserver((records) => {
+      (records[0].target as Element)
+        .querySelectorAll(":scope > div:last-child")[0]
+        .setAttribute("id", selectedBlockRef.current);
+    });
+    const leave = () => {
+      if (isPointerDownRef.current) {
+        const container = document.querySelector(".look");
+        if (container)
+          observer.observe(container, {
+            childList: true,
+          });
+        setIsPointerDown(false);
+      }
+    };
     addId();
+
   }, []);
-
-  const observer = new MutationObserver((records) => {
-      (records[0].target as Element).querySelectorAll(":scope > div:last-child")[0].setAttribute("id", selectedBlockRef.current)
-  });
-
-  const leave = () => {
-    console.log(isPointerDownRef.current);
-    if (isPointerDownRef.current) {
-      const container = document.querySelector(".look");
-      if(container)
-      observer.observe(container, {
-        childList: true,
-      });
-      setIsPointerDown(false);
-    }
-  };
-
-
-
 
 
   const onSubmit = () => {
+    const container = document.querySelector(".look");
+    const blocks: NodeListOf<HTMLDivElement> | undefined =
+      container?.querySelectorAll(":scope > div");
+    if(!blocks) return
+    const validBlocks = Array.from(blocks).filter((block: HTMLDivElement) => {
+      return block.style.visibility !== "hidden";
+    }); 
+
+    const regex =/translate3d\((\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px\)/;
+
+    const tmp: {x: number, y: number, type: string, num: number}[] = []
+    validBlocks.forEach((validBlock: HTMLDivElement) => {
+      let number = 1
+      const transform = regex.exec(validBlock.style.transform);
+      const motionNum = validBlock.querySelector("div")
+      if(motionNum) {
+        number = Number(motionNum.textContent)
+      }
+      if(transform){
+        const [x, y] = [transform[1], transform[2]]
+        tmp.push({x: Number(x), y: Number(y), "type": validBlock.id, num: number})
+      }
+    });
+    tmp.sort((a,b)=> a.x - b.x)
+
+    if(Array.from(new Set(tmp.map((block)=> block.y))).length !== 1){
+      alert("正しくブロックを並べてください")
+      return
+    }
+
+    console.log(tmp)
+    
   };
 
   return (
     <>
       <button
-        style={{ position: "absolute", top: "0px", right: "0px" }}
+        style={{
+          position: "absolute",
+          bottom: "30px",
+          right: "20px",
+          padding: "10px 30px",
+          borderRadius: "5px",
+          cursor: "pointer",
+          backgroundColor: "#00e0ff",
+          color: "white",
+          borderBottom: "solid 5px #00aacc",
+          borderRight: "none",
+          borderColor: "#00e0ff",
+        }}
         onClick={onSubmit}
       >
-        提出
+        Submit
       </button>
 
-      <button
+      {/* <button
         onClick={() => {
           console.log(isPointerDown);
         }}
         style={{ position: "absolute", top: "50px", right: "0px" }}
       >
         提出1
-      </button>
+      </button> */}
     </>
   );
 }
