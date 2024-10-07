@@ -1,4 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { BlockEnum } from "../../enum/Block";
+import { Block, BlockType } from "../../types/Block";
 
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
@@ -25,7 +27,7 @@ export const CodeSubmit = () => {
       blocks?.forEach((block, index) => {
         const canvases = block.querySelectorAll("canvas");
         canvases.forEach((canvas) => {
-          canvas.setAttribute("id", "Motion" + index.toString());
+          canvas.setAttribute("id", "MOTION_" + index.toString());
           canvas.addEventListener("pointerdown", function (e: MouseEvent) {
             setIsPointerDown(true);
             const target = e.target as HTMLCanvasElement;
@@ -69,7 +71,7 @@ export const CodeSubmit = () => {
 
     const regex =/translate3d\((\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px\)/;
 
-    const tmp: {x: number, y: number, type: string, num: number}[] = []
+    const tmp: Block[] = []
     validBlocks.forEach((validBlock: HTMLDivElement) => {
       let number = 1
       const transform = regex.exec(validBlock.style.transform);
@@ -79,7 +81,12 @@ export const CodeSubmit = () => {
       }
       if(transform){
         const [x, y] = [transform[1], transform[2]]
-        tmp.push({x: Number(x), y: Number(y), "type": validBlock.id, num: number})
+        const motion = motionMapping(validBlock.id);
+        if(!motion){
+            alert("再リロードしてください");
+            return;
+        }
+        tmp.push({x: Number(x), y: Number(y), type: motion, num: number})
       }
     });
     tmp.sort((a,b)=> a.x - b.x)
@@ -90,8 +97,35 @@ export const CodeSubmit = () => {
     }
 
     console.log(tmp)
-    
+    chrome.runtime.sendMessage(
+      {action:"codeBlocks", content: tmp},
+      function (response) {
+        console.log(response.result);
+      }
+    );
   };
+
+  const motionMapping = (motion: string): BlockType | undefined => {
+    switch (motion) {
+      case "MOTION_0":
+        return BlockEnum.MOTION_0;
+      case "MOTION_1":
+        return BlockEnum.MOTION_1;
+      case "MOTION_2":
+        return BlockEnum.MOTION_2;
+      case "MOTION_3":
+        return BlockEnum.MOTION_3;
+      case "MOTION_4":
+        return BlockEnum.MOTION_4;
+      case "MOTION_5":
+        return BlockEnum.MOTION_5;
+      case "MOTION_6":
+        return BlockEnum.MOTION_6;
+      case "MOTION_7":
+        return BlockEnum.MOTION_7;
+    }
+
+  }
 
   return (
     <>

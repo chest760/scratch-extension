@@ -22,3 +22,16 @@ chrome.sidePanel
   .setPanelBehavior({ openPanelOnActionClick: true })
   .catch((error) => console.error(error));
 
+
+// OPENAI APIを叩く
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "codeBlocks") {
+    console.log(message.content)
+    sendResponse({result: "OK"})
+  }
+  return true;
+});
+
+// const createPrompt = (content): string => {
+//    return content
+// }
