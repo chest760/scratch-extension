@@ -9,7 +9,6 @@ export const CodeSubmit = () => {
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
   const isPointerDownRef = useRef(isPointerDown);
   const selectedBlockRef = useRef(selectedBlock);
-  const elementNumRef = useRef(elementNum);
 
   useEffect(() => {
     isPointerDownRef.current = isPointerDown;
@@ -41,22 +40,28 @@ export const CodeSubmit = () => {
         });
       });
     };
-    const observer = new MutationObserver((records) => {
-      const num = (records[0].target as Element).querySelectorAll(":scope > div").length;
-      console.log(elementNum);
-      console.log(num)
-      if (elementNumRef.current < num){
-       (records[0].target as Element)
-        .querySelectorAll(":scope > div:last-child")[0]
-        .setAttribute("id", selectedBlockRef.current);
-        
-        setElementNum((prev) => 
-          {
-            console.log(prev)
-            return prev + 1
-          }
-      )
-      }
+    const observer = new MutationObserver((mutationList, observer) => {
+      const num = (mutationList[0].target as Element).querySelectorAll(
+        ":scope > div"
+      ).length;
+
+    if((mutationList[0].target as Element).querySelectorAll(":scope > div:last-child")[0].querySelectorAll("canvas").length!== 4) return
+      
+
+
+      setElementNum((prev) => {
+        console.log(
+          mutationList
+        );
+        if (prev < num) {
+          (mutationList[0].target as Element)
+            .querySelectorAll(":scope > div:last-child")[0]
+            .setAttribute("id", selectedBlockRef.current);
+          return num;
+        } else {
+          return prev;
+        }
+      });
     });
 
     const leave = () => {
@@ -65,6 +70,8 @@ export const CodeSubmit = () => {
         if (container)
           observer.observe(container, {
             childList: true,
+            attributes: false,
+            subtree: false,
           });
         setIsPointerDown(false);
       }
@@ -86,7 +93,7 @@ export const CodeSubmit = () => {
     const regex =/translate3d\((\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px\)/;
 
     const tmp: Block[] = []
-    validBlocks.forEach((validBlock: HTMLDivElement) => {
+    for(const validBlock of validBlocks) {
       let number = 1
       const transform = regex.exec(validBlock.style.transform);
       const motionNum = validBlock.querySelector("div")
@@ -102,7 +109,7 @@ export const CodeSubmit = () => {
         }
         tmp.push({x: Number(x), y: Number(y), type: motion, num: number})
       }
-    });
+    };
     tmp.sort((a,b)=> a.x - b.x)
 
     if(Array.from(new Set(tmp.map((block)=> block.y))).length !== 1){
