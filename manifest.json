@@ -3,16 +3,25 @@
   "name": "Scratch Jr Extension",
   "version": "1.0.0",
   "permissions": [
-    "sidePanel"
+    "sidePanel",
+    "tabs",
+    "activeTab"
   ],
   "action": {},
   "side_panel": {
     "default_path": "src/sidepanel/index.html"
   },
+  "background": {
+   "service_worker": "src/background/background.ts"
+  },
   "content_scripts": [
     {
       "js": ["src/content/content.tsx"],
       "matches": ["<all_urls>"]
-    }
+    },
+      {
+        "js": ["src/content/content_script.ts"],
+        "matches": ["<all_urls>"]
+      }
   ]
 }
