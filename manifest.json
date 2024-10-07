@@ -2,26 +2,27 @@
   "manifest_version": 3,
   "name": "Scratch Jr Extension",
   "version": "1.0.0",
-  "permissions": [
-    "sidePanel",
-    "tabs",
-    "activeTab"
-  ],
+  "permissions": ["sidePanel", "tabs", "activeTab"],
+  "icons": {
+    "16":  "src/icon/icon16.png",
+    "32":  "src/icon/icon32.png",
+    "128": "src/icon/icon128.png"
+  },
   "action": {},
   "side_panel": {
     "default_path": "src/sidepanel/index.html"
   },
   "background": {
-   "service_worker": "src/background/background.ts"
+    "service_worker": "src/background/background.ts"
   },
   "content_scripts": [
     {
       "js": ["src/content/content.tsx"],
-      "matches": ["<all_urls>"]
+      "matches": ["https://codejr.org/scratchjr/index.html"]
     },
-      {
-        "js": ["src/content/content_script.ts"],
-        "matches": ["<all_urls>"]
-      }
+    {
+      "js": ["src/content/content_script.ts"],
+      "matches": ["https://codejr.org/scratchjr/index.html"]
+    }
   ]
 }

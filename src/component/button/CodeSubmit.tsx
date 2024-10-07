@@ -5,10 +5,11 @@ import { Block, BlockType } from "../../types/Block";
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
-  // const [codeBlocks, setCodeBlocks] = useState<{"type": string, "number": number}[]>([])
+  const [elementNum, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
   const isPointerDownRef = useRef(isPointerDown);
   const selectedBlockRef = useRef(selectedBlock);
+  const elementNumRef = useRef(elementNum);
 
   useEffect(() => {
     isPointerDownRef.current = isPointerDown;
@@ -21,7 +22,7 @@ export const CodeSubmit = () => {
   
   useLayoutEffect(() => {
     const addId = async () => {
-      await sleep(2000);
+      await sleep(1000);
       const palette = document.querySelector(".palette");
       const blocks = palette?.querySelectorAll(":scope > div");
       blocks?.forEach((block, index) => {
@@ -41,10 +42,23 @@ export const CodeSubmit = () => {
       });
     };
     const observer = new MutationObserver((records) => {
-      (records[0].target as Element)
+      const num = (records[0].target as Element).querySelectorAll(":scope > div").length;
+      console.log(elementNum);
+      console.log(num)
+      if (elementNumRef.current < num){
+       (records[0].target as Element)
         .querySelectorAll(":scope > div:last-child")[0]
         .setAttribute("id", selectedBlockRef.current);
+        
+        setElementNum((prev) => 
+          {
+            console.log(prev)
+            return prev + 1
+          }
+      )
+      }
     });
+
     const leave = () => {
       if (isPointerDownRef.current) {
         const container = document.querySelector(".look");
