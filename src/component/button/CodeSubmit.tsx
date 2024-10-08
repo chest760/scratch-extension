@@ -122,11 +122,14 @@ export const CodeSubmit = () => {
     }); 
 
     const regex =/translate3d\((\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px\)/;
+    const wisthRegex =/(\d+)px/;
 
     const tmp: Block[] = []
     for(const validBlock of validBlocks) {
       let number = 1
       const transform = regex.exec(validBlock.style.transform);
+      const width = wisthRegex.exec(validBlock.style.width)
+      if(!width) return
       const motionNum = validBlock.querySelector("div")
       if(motionNum) {
         number = Number(motionNum.textContent)
@@ -142,7 +145,7 @@ export const CodeSubmit = () => {
             alert("再リロードしてください");
             return;
         }
-        tmp.push({x: Number(x), y: Number(y), type: motion, num: number})
+        tmp.push({x: Number(x), y: Number(y), width:Number(width[1]), type: motion, num: number, loop:[]})
       }
     };
     tmp.sort((a,b)=> a.x - b.x)
@@ -158,6 +161,50 @@ export const CodeSubmit = () => {
     //   }
     //   return;
     // }
+
+    const handleRpeat = (blocks: Block[]): [Block[], number] => {
+      const repeatStart = blocks[0].x
+      const repeatEnd = blocks[0].x + blocks[0].width - 74
+      const repeatBlocks: Block[] = []
+      let i = 1;
+      while(i < blocks.length){
+        if (
+          repeatStart < blocks[i].x && blocks[i].x < repeatEnd
+        ) {
+          if (blocks[i].type == "REPEAT") {
+            const [nestRepeatBlocks, num] = handleRpeat(blocks.slice(i));
+            blocks[i].loop = nestRepeatBlocks;
+            repeatBlocks.push(blocks[i]);
+            i += num;
+          } else {
+            repeatBlocks.push(blocks[i]);
+            i++;
+          }
+        }else{
+          break
+        }
+      }
+
+      return [repeatBlocks, i]
+    };
+    
+    const blockArray: Block[] = [];
+    let i = 0;
+    while( i < tmp.length){
+      if(tmp[i].type == "REPEAT"){
+        const [repeatBlock, num] = handleRpeat(tmp.slice(i))
+        tmp[i].loop = repeatBlock
+        blockArray.push(tmp[i]);
+        i += num
+      }else{
+        blockArray.push(tmp[i])
+        i++
+      }
+    }
+
+    console.log(blockArray)
+
+
 
     console.log(tmp)
     chrome.runtime.sendMessage(
