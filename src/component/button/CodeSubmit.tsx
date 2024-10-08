@@ -1,15 +1,16 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BlockEnum } from "../../enum/Block";
 import { Block, BlockType } from "../../types/Block";
+import { CategoryType } from "../../types/Category";
 
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
   const [elementNum, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
+
   const isPointerDownRef = useRef(isPointerDown);
   const selectedBlockRef = useRef(selectedBlock);
-  const elementNumRef = useRef(elementNum);
 
   useEffect(() => {
     isPointerDownRef.current = isPointerDown;
@@ -19,59 +20,96 @@ export const CodeSubmit = () => {
     selectedBlockRef.current = selectedBlock;
   }, [selectedBlock]);
 
-  
   useLayoutEffect(() => {
-    const addId = async () => {
+    const attach = async () => {
+      document.querySelector(".controlundo")?.remove();
       await sleep(1000);
-      const palette = document.querySelector(".palette");
-      const blocks = palette?.querySelectorAll(":scope > div");
-      blocks?.forEach((block, index) => {
-        const canvases = block.querySelectorAll("canvas");
-        canvases.forEach((canvas) => {
-          canvas.setAttribute("id", "MOTION_" + index.toString());
-          canvas.addEventListener("pointerdown", function (e: MouseEvent) {
-            setIsPointerDown(true);
-            const target = e.target as HTMLCanvasElement;
-            setSelectedBlock(target.id);
-          });
-          canvas.addEventListener("pointerup", function () {
-            setIsPointerDown(false);
-          });
-          canvas.addEventListener("pointermove", leave);
-        });
-      });
-    };
-    const observer = new MutationObserver((records) => {
-      const num = (records[0].target as Element).querySelectorAll(":scope > div").length;
-      console.log(elementNum);
-      console.log(num)
-      if (elementNumRef.current < num){
-       (records[0].target as Element)
-        .querySelectorAll(":scope > div:last-child")[0]
-        .setAttribute("id", selectedBlockRef.current);
-        
-        setElementNum((prev) => 
-          {
-            console.log(prev)
-            return prev + 1
-          }
-      )
-      }
-    });
 
+      CategorySelector();
+      AttachedId("Motion");
+    };
+    attach();
+  }, []);
+
+
+    const observer = new MutationObserver((mutationList, observer) => {
+      const num = (mutationList[0].target as Element).querySelectorAll(
+        ":scope > div"
+      ).length;
+      if (
+        (mutationList[0].target as Element)
+          .querySelectorAll(":scope > div:last-child")[0]
+          .querySelectorAll("canvas").length < 4
+      )
+        return
+      setElementNum((prev) => {
+        if (prev < num) {
+          const blocks: NodeListOf<HTMLDivElement> | undefined = (mutationList[0].target as Element).querySelectorAll(":scope > div")
+          blocks.forEach((block)=>{
+            if(!block.id){
+              block.setAttribute("id", selectedBlockRef.current);
+            }
+          })
+          return num;
+        } else {
+          return prev;
+        }
+      });
+    })
+    
     const leave = () => {
       if (isPointerDownRef.current) {
         const container = document.querySelector(".look");
         if (container)
           observer.observe(container, {
             childList: true,
+            attributes: false,
+            subtree: false,
           });
         setIsPointerDown(false);
       }
     };
-    addId();
 
-  }, []);
+
+    const CategorySelector = () => {
+      const Categoryes: CategoryType[] = [
+        "Start", "Motion", "Looks", "Sound", "Flow", "Stop",
+      ];
+      const categorySelectors: NodeListOf<HTMLDivElement> | undefined = document.querySelector(".categoryselector")?.querySelectorAll(":scope > div:not(.catbkg)");
+      if(!categorySelectors) return
+      categorySelectors.forEach((categorySelector: HTMLDivElement, index: number) => {
+        categorySelector.addEventListener("click", function() {
+          AttachedId(Categoryes[index])
+        })
+      }); 
+    };
+
+    const AttachedId = (selectedCategory: CategoryType) => {
+      console.log(selectedCategory)
+      const palette = document.querySelector(".palette");
+      const blocks: NodeListOf<HTMLDivElement> | undefined =
+        palette?.querySelectorAll(":scope > div");
+
+      blocks?.forEach((block: HTMLDivElement, index: number) => {
+        block.setAttribute("id", selectedCategory + "_" + index.toString());
+        const canvases = block.querySelectorAll("canvas");
+        canvases.forEach((canvas) => {
+          canvas.setAttribute("id", selectedCategory + "_" + index.toString());
+
+          canvas.addEventListener("pointerdown", function (e: MouseEvent) {
+            setIsPointerDown(true);
+            const target = e.target as HTMLCanvasElement;
+            setSelectedBlock(target.id);
+          });
+
+          canvas.addEventListener("pointerup", function () {
+            setIsPointerDown(false);
+          });
+
+          canvas.addEventListener("pointermove", leave);
+        });
+      });
+    };
 
 
   const onSubmit = () => {
@@ -86,15 +124,19 @@ export const CodeSubmit = () => {
     const regex =/translate3d\((\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px\)/;
 
     const tmp: Block[] = []
-    validBlocks.forEach((validBlock: HTMLDivElement) => {
+    for(const validBlock of validBlocks) {
       let number = 1
       const transform = regex.exec(validBlock.style.transform);
       const motionNum = validBlock.querySelector("div")
       if(motionNum) {
         number = Number(motionNum.textContent)
+        if(isNaN(number)){
+          number = 1
+        }
       }
       if(transform){
         const [x, y] = [transform[1], transform[2]]
+        console.log(validBlock.id);
         const motion = motionMapping(validBlock.id);
         if(!motion){
             alert("再リロードしてください");
@@ -102,13 +144,20 @@ export const CodeSubmit = () => {
         }
         tmp.push({x: Number(x), y: Number(y), type: motion, num: number})
       }
-    });
+    };
     tmp.sort((a,b)=> a.x - b.x)
-
-    if(Array.from(new Set(tmp.map((block)=> block.y))).length !== 1){
-      alert("正しくブロックを並べてください")
-      return
-    }
+    
+    // const yArray = Array.from(new Set(tmp.map((block) => block.y)));
+    // if (yArray.length !== 1) {
+    //   if (yArray.length == 2){
+    //     if(Math.abs(yArray[0] - yArray[1]) !== 16){
+    //       alert("正しくブロックを並べてください");
+    //     }
+    //   }else{
+    //       alert("正しくブロックを並べてください");
+    //   }
+    //   return;
+    // }
 
     console.log(tmp)
     chrome.runtime.sendMessage(
@@ -121,22 +170,58 @@ export const CodeSubmit = () => {
 
   const motionMapping = (motion: string): BlockType | undefined => {
     switch (motion) {
-      case "MOTION_0":
+      case "Motion_0":
         return BlockEnum.MOTION_0;
-      case "MOTION_1":
+      case "Motion_1":
         return BlockEnum.MOTION_1;
-      case "MOTION_2":
+      case "Motion_2":
         return BlockEnum.MOTION_2;
-      case "MOTION_3":
+      case "Motion_3":
         return BlockEnum.MOTION_3;
-      case "MOTION_4":
+      case "Motion_4":
         return BlockEnum.MOTION_4;
-      case "MOTION_5":
+      case "Motion_5":
         return BlockEnum.MOTION_5;
-      case "MOTION_6":
+      case "Motion_6":
         return BlockEnum.MOTION_6;
-      case "MOTION_7":
+      case "Motion_7":
         return BlockEnum.MOTION_7;
+      case "Start_0":
+        return BlockEnum.START_0;
+      case "Start_1":
+        return BlockEnum.START_1;
+      case "Start_2":
+        return BlockEnum.START_2;
+      case "Start_3":
+        return BlockEnum.START_3;
+      case "Start_4":
+        return BlockEnum.START_4;
+      case "Looks_0":
+        return BlockEnum.LOOKS_0;
+      case "Looks_1":
+        return BlockEnum.LOOKS_1;
+      case "Looks_2":
+        return BlockEnum.LOOKS_2;
+      case "Looks_3":
+        return BlockEnum.LOOKS_3;
+      case "Looks_4":
+        return BlockEnum.LOOKS_4;
+      case "Looks_5":
+        return BlockEnum.LOOKS_5;
+      case "Sound_0":
+        return BlockEnum.SOUND_0;
+      case "Flow_0":
+        return BlockEnum.FLOW_0;
+      case "Flow_1":
+        return BlockEnum.FLOW_1;
+      case "Flow_2":
+        return BlockEnum.FLOW_2;
+      case "Flow_3":
+        return BlockEnum.FLOW_3;
+      case "Stop_0":
+        return BlockEnum.STOP_0;
+      case "Stop_1":
+        return BlockEnum.STOP_1
     }
 
   }
@@ -162,14 +247,14 @@ export const CodeSubmit = () => {
         Submit
       </button>
 
-      {/* <button
+      <button
         onClick={() => {
-          console.log(isPointerDown);
+          console.log(selectedCategory);
         }}
         style={{ position: "absolute", top: "50px", right: "0px" }}
       >
         提出1
-      </button> */}
+      </button>
     </>
   );
 }
