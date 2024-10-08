@@ -11,6 +11,8 @@ export type BlockType = MotionType | StartType | LooksType | SoundType | FlowTyp
 export type Block = {
     x: number;
     y: number;
+    width: number;
     type: BlockType;
     num: number;
+    loop: Block[];
 }
