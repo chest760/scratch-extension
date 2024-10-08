@@ -6,7 +6,7 @@ import { CategoryType } from "../../types/Category";
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
-  const [elementNum, setElementNum] = useState<number>(0)
+  const [, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
 
   const isPointerDownRef = useRef(isPointerDown);
@@ -43,7 +43,7 @@ export const CodeSubmit = () => {
     });
 
 
-  const blockObserver = new MutationObserver((mutationList, observer) => {
+  const blockObserver = new MutationObserver((mutationList,) => {
     const num = (mutationList[0].target as Element).querySelectorAll(":scope > div").length;
     if ((mutationList[0].target as Element).querySelectorAll(":scope > div:last-child")[0].querySelectorAll("canvas").length < 4) return
     setElementNum((prev) => {
@@ -294,15 +294,6 @@ export const CodeSubmit = () => {
         onClick={onSubmit}
       >
         Submit
-      </button>
-
-      <button
-        onClick={() => {
-          console.log(selectedCategory);
-        }}
-        style={{ position: "absolute", top: "50px", right: "0px" }}
-      >
-        提出1
       </button>
     </>
   );
