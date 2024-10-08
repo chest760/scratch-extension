@@ -1,0 +1,1 @@
+export type CategoryType = "Start" | "Motion" | "Looks" | "Sound" | "Flow" | "Stop" 
