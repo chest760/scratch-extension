@@ -24,195 +24,197 @@ export const CodeSubmit = () => {
     const attach = async () => {
       document.querySelector(".controlundo")?.remove();
       await sleep(1000);
-
       CategorySelector();
       AttachedId("Motion");
     };
     attach();
   }, []);
 
+  const thumbObserver = new MutationObserver(() => {
+    setElementNum(0)
+  })
 
-    const observer = new MutationObserver((mutationList, observer) => {
-      const num = (mutationList[0].target as Element).querySelectorAll(
-        ":scope > div"
-      ).length;
-      if (
-        (mutationList[0].target as Element)
-          .querySelectorAll(":scope > div:last-child")[0]
-          .querySelectorAll("canvas").length < 4
-      )
-        return
-      setElementNum((prev) => {
-        if (prev < num) {
-          const blocks: NodeListOf<HTMLDivElement> | undefined = (mutationList[0].target as Element).querySelectorAll(":scope > div")
-          blocks.forEach((block)=>{
-            if(!block.id){
-              block.setAttribute("id", selectedBlockRef.current);
-            }
-          })
+  const spritecc = document.querySelector(".spritecc");
+  if (spritecc)
+    thumbObserver.observe(spritecc, {
+      childList: true,
+      attributes: false,
+      subtree: false,
+    });
+
+
+  const blockObserver = new MutationObserver((mutationList, observer) => {
+    const num = (mutationList[0].target as Element).querySelectorAll(":scope > div").length;
+    if ((mutationList[0].target as Element).querySelectorAll(":scope > div:last-child")[0].querySelectorAll("canvas").length < 4) return
+    setElementNum((prev) => {
+      if (prev < num) {
+        const blocks: NodeListOf<HTMLDivElement> | undefined = (mutationList[0].target as Element).querySelectorAll(":scope > div")
+        blocks.forEach((block)=>{
+          if(!block.id){
+            block.setAttribute("id", selectedBlockRef.current);
+          }
+        })
           return num;
         } else {
           return prev;
         }
       });
-    })
+  })
     
-    const leave = () => {
-      if (isPointerDownRef.current) {
-        const container = document.querySelector(".look");
-        if (container)
-          observer.observe(container, {
-            childList: true,
-            attributes: false,
-            subtree: false,
-          });
-        setIsPointerDown(false);
+  const leave = () => {
+    let container: HTMLDivElement | undefined = undefined;
+    if (isPointerDownRef.current) {
+      const containers: NodeListOf<HTMLDivElement> | undefined = document.querySelectorAll(".look");
+      for(const div of containers){
+          if(div.style.visibility === "visible"){
+            container = div
+          }
       }
-    };
-
-
-    const CategorySelector = () => {
-      const Categoryes: CategoryType[] = [
-        "Start", "Motion", "Looks", "Sound", "Flow", "Stop",
-      ];
-      const categorySelectors: NodeListOf<HTMLDivElement> | undefined = document.querySelector(".categoryselector")?.querySelectorAll(":scope > div:not(.catbkg)");
-      if(!categorySelectors) return
-      categorySelectors.forEach((categorySelector: HTMLDivElement, index: number) => {
-        categorySelector.addEventListener("click", function() {
-          AttachedId(Categoryes[index])
-        })
-      }); 
-    };
-
-    const AttachedId = (selectedCategory: CategoryType) => {
-      console.log(selectedCategory)
-      const palette = document.querySelector(".palette");
-      const blocks: NodeListOf<HTMLDivElement> | undefined =
-        palette?.querySelectorAll(":scope > div");
-
-      blocks?.forEach((block: HTMLDivElement, index: number) => {
-        block.setAttribute("id", selectedCategory + "_" + index.toString());
-        const canvases = block.querySelectorAll("canvas");
-        canvases.forEach((canvas) => {
-          canvas.setAttribute("id", selectedCategory + "_" + index.toString());
-
-          canvas.addEventListener("pointerdown", function (e: MouseEvent) {
-            setIsPointerDown(true);
-            const target = e.target as HTMLCanvasElement;
-            setSelectedBlock(target.id);
-          });
-
-          canvas.addEventListener("pointerup", function () {
-            setIsPointerDown(false);
-          });
-
-          canvas.addEventListener("pointermove", leave);
-        });
+      if (container)
+        blockObserver.observe(container, {
+          childList: true,
+          attributes: false,
+          subtree: false,
       });
-    };
+      setIsPointerDown(false);
+    }
+  };
+
+  const CategorySelector = () => {
+    const Categoryes: CategoryType[] = [
+      "Start", "Motion", "Looks", "Sound", "Flow", "Stop",
+    ];
+    const categorySelectors: NodeListOf<HTMLDivElement> | undefined = document.querySelector(".categoryselector")?.querySelectorAll(":scope > div:not(.catbkg)");
+    if(!categorySelectors) return
+    categorySelectors.forEach((categorySelector: HTMLDivElement, index: number) => {
+      categorySelector.addEventListener("click", function() {
+        AttachedId(Categoryes[index])
+      })
+    }); 
+  };
+
+  const AttachedId = (selectedCategory: CategoryType) => {
+    console.log(selectedCategory)
+    const palette = document.querySelector(".palette");
+    const blocks: NodeListOf<HTMLDivElement> | undefined =
+      palette?.querySelectorAll(":scope > div");
+    blocks?.forEach((block: HTMLDivElement, index: number) => {
+      block.setAttribute("id", selectedCategory + "_" + index.toString());
+      const canvases = block.querySelectorAll("canvas");
+      canvases.forEach((canvas) => {
+        canvas.setAttribute("id", selectedCategory + "_" + index.toString());
+        canvas.addEventListener("pointerdown", function (e: MouseEvent) {
+          setIsPointerDown(true);
+          const target = e.target as HTMLCanvasElement;
+          setSelectedBlock(target.id);
+        });
+        canvas.addEventListener("pointerup", function () {
+          setIsPointerDown(false);
+        });
+        canvas.addEventListener("pointermove", leave);
+      });
+    });
+  };
+
+  const handleRpeat = (blocks: Block[]): [Block[], number] => {
+    const repeatStart = blocks[0].x;
+    const repeatEnd = blocks[0].x + blocks[0].width - 74;
+    const repeatBlocks: Block[] = [];
+    let i = 1;
+    while (i < blocks.length) {
+      if (repeatStart < blocks[i].x && blocks[i].x < repeatEnd) {
+        if (blocks[i].type == "REPEAT") {
+          const [nestRepeatBlocks, num] = handleRpeat(blocks.slice(i));
+          blocks[i].loop = nestRepeatBlocks;
+          repeatBlocks.push(blocks[i]);
+          i += num;
+        } else {
+          repeatBlocks.push(blocks[i]);
+          i++;
+        }
+      } else {
+        break;
+      }
+    }
+    return [repeatBlocks, i];
+  };
 
 
   const onSubmit = () => {
-    const container = document.querySelector(".look");
-    const blocks: NodeListOf<HTMLDivElement> | undefined =
-      container?.querySelectorAll(":scope > div");
-    if(!blocks) return
-    const validBlocks = Array.from(blocks).filter((block: HTMLDivElement) => {
-      return block.style.visibility !== "hidden";
-    }); 
+    
+    const submittedBlock: Block[][] = []
 
-    const regex =/translate3d\((\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px\)/;
-    const wisthRegex =/(\d+)px/;
+    const containers: NodeListOf<HTMLDivElement> | undefined = document.querySelectorAll(".look");    
+    for(const container of containers){
+      const blocks: NodeListOf<HTMLDivElement> | undefined = container?.querySelectorAll(":scope > div");
+      if (!blocks) return;
+      const validBlocks = Array.from(blocks).filter((block: HTMLDivElement) => {
+        return block.style.visibility !== "hidden";
+      });
 
-    const tmp: Block[] = []
-    for(const validBlock of validBlocks) {
-      let number = 1
-      const transform = regex.exec(validBlock.style.transform);
-      const width = wisthRegex.exec(validBlock.style.width)
-      if(!width) return
-      const motionNum = validBlock.querySelector("div")
-      if(motionNum) {
-        number = Number(motionNum.textContent)
-        if(isNaN(number)){
-          number = 1
+      const regex =
+        /translate3d\((\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px, (\d+\.{0,1}\d*)px\)/;
+      const wisthRegex = /(\d+)px/;
+
+      const tmp: Block[] = [];
+      for (const validBlock of validBlocks) {
+        let number = 1;
+        const transform = regex.exec(validBlock.style.transform);
+        const width = wisthRegex.exec(validBlock.style.width);
+        if (!width) return;
+        const motionNum = validBlock.querySelector("div");
+        if (motionNum) {
+          number = Number(motionNum.textContent);
+          if (isNaN(number)) {
+            number = 1;
+          }
         }
-      }
-      if(transform){
-        const [x, y] = [transform[1], transform[2]]
-        console.log(validBlock.id);
-        const motion = motionMapping(validBlock.id);
-        if(!motion){
+        if (transform) {
+          const [x, y] = [transform[1], transform[2]];
+          const motion = motionMapping(validBlock.id);
+          if (!motion) {
             alert("再リロードしてください");
             return;
-        }
-        tmp.push({x: Number(x), y: Number(y), width:Number(width[1]), type: motion, num: number, loop:[]})
-      }
-    };
-    tmp.sort((a,b)=> a.x - b.x)
-    
-    // const yArray = Array.from(new Set(tmp.map((block) => block.y)));
-    // if (yArray.length !== 1) {
-    //   if (yArray.length == 2){
-    //     if(Math.abs(yArray[0] - yArray[1]) !== 16){
-    //       alert("正しくブロックを並べてください");
-    //     }
-    //   }else{
-    //       alert("正しくブロックを並べてください");
-    //   }
-    //   return;
-    // }
-
-    const handleRpeat = (blocks: Block[]): [Block[], number] => {
-      const repeatStart = blocks[0].x
-      const repeatEnd = blocks[0].x + blocks[0].width - 74
-      const repeatBlocks: Block[] = []
-      let i = 1;
-      while(i < blocks.length){
-        if (
-          repeatStart < blocks[i].x && blocks[i].x < repeatEnd
-        ) {
-          if (blocks[i].type == "REPEAT") {
-            const [nestRepeatBlocks, num] = handleRpeat(blocks.slice(i));
-            blocks[i].loop = nestRepeatBlocks;
-            repeatBlocks.push(blocks[i]);
-            i += num;
-          } else {
-            repeatBlocks.push(blocks[i]);
-            i++;
           }
-        }else{
-          break
+          tmp.push({
+            x: Number(x),
+            y: Number(y),
+            width: Number(width[1]),
+            type: motion,
+            num: number,
+            loop: [],
+          });
+        }
+      }
+      tmp.sort((a, b) => a.x - b.x);
+
+      const blockArray: Block[] = [];
+      let i = 0;
+      while (i < tmp.length) {
+        if (tmp[i].type == "REPEAT") {
+          const [repeatBlock, num] = handleRpeat(tmp.slice(i));
+          tmp[i].loop = repeatBlock;
+          blockArray.push(tmp[i]);
+          i += num;
+        } else {
+          blockArray.push(tmp[i]);
+          i++;
         }
       }
 
-      return [repeatBlocks, i]
-    };
-    
-    const blockArray: Block[] = [];
-    let i = 0;
-    while( i < tmp.length){
-      if(tmp[i].type == "REPEAT"){
-        const [repeatBlock, num] = handleRpeat(tmp.slice(i))
-        tmp[i].loop = repeatBlock
-        blockArray.push(tmp[i]);
-        i += num
-      }else{
-        blockArray.push(tmp[i])
-        i++
-      }
+      submittedBlock.push(blockArray)
     }
 
-    console.log(blockArray)
+    console.log(submittedBlock)
 
 
-
-    console.log(tmp)
-    chrome.runtime.sendMessage(
-      {action:"codeBlocks", content: tmp},
-      function (response) {
-        console.log(response.result);
-      }
-    );
+    // console.log(tmp)
+    // chrome.runtime.sendMessage(
+    //   {action:"codeBlocks", content: tmp},
+    //   function (response) {
+    //     console.log(response.result);
+    //   }
+    // );
   };
 
   const motionMapping = (motion: string): BlockType | undefined => {
