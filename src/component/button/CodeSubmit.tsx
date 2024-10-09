@@ -3,11 +3,14 @@ import { isEndType, isStartType } from "../../content/content_script";
 import { BlockEnum } from "../../enum/Block";
 import { Block, BlockType } from "../../types/Block";
 import { CategoryType } from "../../types/Category";
+import { Cover } from "../background/cover";
 
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
   const [quiz, setQuiz] = useState<string>("")
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [isMount, setIsMount] = useState<boolean>(false);
   const [, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
 
@@ -28,6 +31,7 @@ export const CodeSubmit = () => {
       await sleep(1000);
       CategorySelector();
       AttachedId("Motion");
+      setIsMount(true)
     };
     attach();
   }, []);
@@ -152,7 +156,7 @@ export const CodeSubmit = () => {
 
 
   const onSubmit = () => {
-    
+    setIsGenerating(true)
     const submittedBlock: Block[][] = []
 
     const containers: NodeListOf<HTMLDivElement> | undefined = document.querySelectorAll(".look");    
@@ -237,6 +241,10 @@ export const CodeSubmit = () => {
     chrome.runtime.sendMessage(
       {action:"codeBlocks", content: submittedBlock, quiz: quiz},
       function (response) {
+        setIsGenerating(false)
+        if(response.result === "Failed"){
+          alert(response.message)
+        }
       }
     );
   };
@@ -319,6 +327,10 @@ export const CodeSubmit = () => {
       >
         Submit
       </button>
+
+      {isGenerating ? <Cover color="primary" /> : <></>}
+
+      {isMount ? <></> : <Cover color="success" />}
     </>
   );
 }

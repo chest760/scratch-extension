@@ -31,7 +31,7 @@ import { Prompt } from "../prompt/prompt";
 import { Block } from "../types/Block";
 import { CreatePrompt } from "./CreatePrompt";
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY});
-chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {  
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {  
   if (message.action === "codeBlocks") {
     console.log(message.content as Block[][])
     const blocks: Block[][] = message.content
@@ -47,7 +47,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     }
     const requestPrompt = Prompt.replace("<program>", code).replace("<quiz>", quiz);
 
-    const completion = await openai.chat.completions.create({
+    const completion = openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         {
@@ -56,17 +56,19 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         },
       ],
     });
-
-    console.log(completion.choices[0].message.content);
-
-
-
-    sendResponse({result: "Failed", message: "Any Block does not exist in field"})
-
-
-
+    console.log("SLEEP")
+    completion.then((value)=>{
+      console.log(value.choices[0].message.content);
+      sendResponse({result: "Success", message: "Your Request was successed"})
+    }).catch(()=>{
+      sendResponse({
+        result: "Failed",
+        message: "error in generation",
+      });
+    })
+    return true
   }
-  return true;
+  return true
 });
 
 
