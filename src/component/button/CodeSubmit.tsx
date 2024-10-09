@@ -7,6 +7,7 @@ import { CategoryType } from "../../types/Category";
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
+  const [quiz, setQuiz] = useState<string>("")
   const [, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
 
@@ -30,6 +31,15 @@ export const CodeSubmit = () => {
     };
     attach();
   }, []);
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("###")
+    if(message.action === "quiz"){
+      setQuiz(message.content)
+    }
+    sendResponse("set quiz text")
+    return true
+  })
 
   const thumbObserver = new MutationObserver(() => {
     setElementNum(0)
@@ -225,7 +235,7 @@ export const CodeSubmit = () => {
   
 
     chrome.runtime.sendMessage(
-      {action:"codeBlocks", content: submittedBlock},
+      {action:"codeBlocks", content: submittedBlock, quiz: quiz},
       function (response) {
       }
     );

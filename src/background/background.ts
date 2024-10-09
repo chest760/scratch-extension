@@ -25,13 +25,28 @@ chrome.sidePanel
 
 // OPENAI APIを叩く
 
+import { Prompt } from "../prompt/prompt";
 import { Block } from "../types/Block";
 import { CreatePrompt } from "./createPrompt";
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {  
   if (message.action === "codeBlocks") {
     console.log(message.content as Block[][])
     const blocks: Block[][] = message.content
-    CreatePrompt(blocks[0])
+    const code = CreatePrompt(blocks[0])
+    const quiz: string = message.quiz
+
+    if(quiz.length === 0){
+      sendResponse({
+        result: "Failed",
+        message: "Please Quiz Page",
+      });
+      return true
+    }
+
+    const requestPrompt = Prompt.replace("<program>", code).replace("<quiz>", quiz);
+
+
+
     sendResponse({result: "Failed", message: "Any Block does not exist in field"})
 
 
