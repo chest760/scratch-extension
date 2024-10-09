@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { isEndType, isStartType } from "../../content/content_script";
 import { BlockEnum } from "../../enum/Block";
 import { Block, BlockType } from "../../types/Block";
 import { CategoryType } from "../../types/Category";
@@ -6,6 +7,7 @@ import { CategoryType } from "../../types/Category";
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
+  const [quiz, setQuiz] = useState<string>("")
   const [, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
 
@@ -29,6 +31,15 @@ export const CodeSubmit = () => {
     };
     attach();
   }, []);
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("###")
+    if(message.action === "quiz"){
+      setQuiz(message.content)
+    }
+    sendResponse("set quiz text")
+    return true
+  })
 
   const thumbObserver = new MutationObserver(() => {
     setElementNum(0)
@@ -202,19 +213,32 @@ export const CodeSubmit = () => {
         }
       }
 
+      if (blockArray.length === 0) {
+        alert("Any Block does not exist in field");
+        return;
+      }
+      
+      if(!isStartType(blockArray[0].type)){
+        alert("The fisrt block must be start type")
+        return
+      }
+
+      if (!isEndType(blockArray.slice(-1)[0].type)) {
+        alert("The last block must be end type");
+        return
+      }
+
       submittedBlock.push(blockArray)
     }
 
     console.log(submittedBlock)
+  
 
-
-    // console.log(tmp)
-    // chrome.runtime.sendMessage(
-    //   {action:"codeBlocks", content: tmp},
-    //   function (response) {
-    //     console.log(response.result);
-    //   }
-    // );
+    chrome.runtime.sendMessage(
+      {action:"codeBlocks", content: submittedBlock, quiz: quiz},
+      function (response) {
+      }
+    );
   };
 
   const motionMapping = (motion: string): BlockType | undefined => {
