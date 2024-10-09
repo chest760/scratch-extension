@@ -29,7 +29,7 @@ import OpenAI from "openai";
 import { OPENAI_API_KEY } from "../config";
 import { Prompt } from "../prompt/prompt";
 import { Block } from "../types/Block";
-import { CreatePrompt } from "./createPrompt";
+import { CreatePrompt } from "./CreatePrompt";
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY});
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {  
   if (message.action === "codeBlocks") {
