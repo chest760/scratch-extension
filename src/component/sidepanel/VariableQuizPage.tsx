@@ -1,18 +1,21 @@
 import { useEffect } from "react";
 
 export const VariableQuizPage = () => {
-  const PROBLEM = "くるまをがめんのまんなかで\nとめるにはどうしますか？";
+  const QUIZ = "くるまをがめんのまんなかで\nとめるにはどうしますか？";
   useEffect(()=>{
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0].id)
-        chrome.tabs.sendMessage(tabs[0].id, {action: "quiz", content: PROBLEM}, () => {
-        });
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          { action: "quiz", content: QUIZ },
+          () => {}
+        );
     });
   },[])
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h1 style={{ marginTop: "50px" }}>{PROBLEM}</h1>
+      <h1 style={{ marginTop: "50px" }}>{QUIZ}</h1>
 
       {/* ボタンにスタイルを追加 */}
       <button

@@ -1,8 +1,24 @@
+import { useEffect } from "react";
+
 export const ParallelQuizPage = () => {
+
+      const QUIZ =
+        "いぬ、うさぎ、ぶたの\nじゅんばんでゴールするレースをつくろう";
+      useEffect(() => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0].id)
+            chrome.tabs.sendMessage(
+              tabs[0].id,
+              { action: "quiz", content: QUIZ },
+              () => {}
+            );
+        });
+      }, []);
+
     return (
       <div style={{ textAlign: "center" }}>
         <h1 style={{ marginTop: "50px" }}>
-          いぬ、うさぎ、ぶたの<br />じゅんばんでゴールするレースをつくろう
+          {QUIZ}
         </h1>
         
         {/* ボタンにスタイルを追加 */}
