@@ -24,14 +24,20 @@ chrome.sidePanel
 
 
 // OPENAI APIを叩く
+
+import { Block } from "../types/Block";
+import { CreatePrompt } from "./createPrompt";
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "codeBlocks") {
-    console.log(message.content)
-    sendResponse({result: "OK"})
+    console.log(message.content as Block[][])
+    const blocks: Block[][] = message.content
+    CreatePrompt(blocks[0])
+    sendResponse({result: "Failed", message: "Any Block does not exist in field"})
+
+
+
   }
   return true;
 });
 
-// const createPrompt = (content): string => {
-//    return content
-// }
+

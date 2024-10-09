@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { isEndType, isStartType } from "../../content/content_script";
 import { BlockEnum } from "../../enum/Block";
 import { Block, BlockType } from "../../types/Block";
 import { CategoryType } from "../../types/Category";
@@ -202,19 +203,32 @@ export const CodeSubmit = () => {
         }
       }
 
+      if (blockArray.length === 0) {
+        alert("Any Block does not exist in field");
+        return;
+      }
+      
+      if(!isStartType(blockArray[0].type)){
+        alert("The fisrt block must be start type")
+        return
+      }
+
+      if (!isEndType(blockArray.slice(-1)[0].type)) {
+        alert("The last block must be end type");
+        return
+      }
+
       submittedBlock.push(blockArray)
     }
 
     console.log(submittedBlock)
+  
 
-
-    // console.log(tmp)
-    // chrome.runtime.sendMessage(
-    //   {action:"codeBlocks", content: tmp},
-    //   function (response) {
-    //     console.log(response.result);
-    //   }
-    // );
+    chrome.runtime.sendMessage(
+      {action:"codeBlocks", content: submittedBlock},
+      function (response) {
+      }
+    );
   };
 
   const motionMapping = (motion: string): BlockType | undefined => {
