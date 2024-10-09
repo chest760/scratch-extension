@@ -25,10 +25,13 @@ chrome.sidePanel
 
 // OPENAI APIを叩く
 
+import OpenAI from "openai";
+import { OPENAI_API_KEY } from "../config";
 import { Prompt } from "../prompt/prompt";
 import { Block } from "../types/Block";
 import { CreatePrompt } from "./createPrompt";
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {  
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY});
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {  
   if (message.action === "codeBlocks") {
     console.log(message.content as Block[][])
     const blocks: Block[][] = message.content
@@ -42,8 +45,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       });
       return true
     }
-
     const requestPrompt = Prompt.replace("<program>", code).replace("<quiz>", quiz);
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "user",
+          content: requestPrompt,
+        },
+      ],
+    });
+
+    console.log(completion.choices[0].message.content);
 
 
 
