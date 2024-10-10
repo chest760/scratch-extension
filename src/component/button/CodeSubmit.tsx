@@ -328,9 +328,13 @@ export const CodeSubmit = () => {
         Submit
       </button>
 
+<<<<<<< Updated upstream
       {isGenerating ? <Cover color="primary" /> : <></>}
 
       {isMount ? <></> : <Cover color="success" />}
+=======
+ 
+>>>>>>> Stashed changes
     </>
   );
 }

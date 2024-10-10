@@ -5,11 +5,13 @@ export const TopPage = () => {
     const navigate = useNavigate();
     return (
       <div style={{ textAlign: "center" }}>
-        <h1>ようこそ !!</h1>
+        <h1>ようこそ！！<br />
+        「はじめる」をおして<br />べんきょうしたいコースを<br />えらぼう
+        </h1>
         <button onClick={()=>{
             navigate("/select")
         }} className={styles.btn}>
-            始める
+            はじめる
         </button>
       </div>
     );

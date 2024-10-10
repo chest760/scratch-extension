@@ -1,2 +1,73 @@
 1 コンポーネントの中のセレクトプロジェクトに押したら出てきて欲しい画像を入れる
 2 クイズページの中身　ボタンを4つ作る(始めるボタンを変える)
+
+
+ブロックを関数にする
+関数の説明する
+
+- You are a professional programmer, particularly familiar with Scratch　jr, a block-based visual programming language.
+- This time, you will take on the role of a creator and teach young children programming using a tool called Scratch Junior.
+
+##### Block types and corresponding functions #####
+The types of blocks are as follows:
+n means the number of times. Also, TURN rotates 30 degrees each time.
+
+#1: MOVE LEFT : agent.MOVE(LEFT, n) 
+#2: MOVE RIGHT: agent.MOVE(RIGHT, n) 
+#3: MOVE UP   : agent.MOVE(UP, n) 
+#4: MOVE DOWN : agent.MOVE(DOWN, n) 
+#5: TURN RIGHT: agent.TURN(RIGHT, n) 
+#6: TURN LEFT : agent.TURN(LEFT, n) 
+#7: SAY       : agent.SAY(x) 
+#8: GROW      : agent.GROW(n) 
+#9: SHRINK    : agent.SHRINK(n) 
+#10: NOMALSIZE : agent.NOMALSIZE 
+#11: PAUSE     : agent.PAUSE
+#12: APPEAR    : agent.APPEAR 
+#13: START     :START
+#14: END       :END
+
+速さと繰り返しのプロンプト
+
+
+###### EXAMPLE ######
+The follow code means to move five spaces to the right, rotate 90 degrees to the left, then move five spaces up, repeating this process twice.
+
+agent.MOVE(RIGHT, 5);
+agent.TURN(LEFT, 3)
+agent.MOVE(UP, 5) 
+
+##### ALL YOU HAVEE TO DO #####
+1. Calculate the complexity of a given #PROGRAM.
+2. Generate a problem that results in a program with lower complexity than this complexity.
+
+#PROGRAM
+<program>
+STARTMOVE 
+agent.MOVE(RIGHT, 1) 
+agent.MOVE(UP, 4) 
+END
+
+This code is converted like this
+
+function doSomething () {
+    agent.move(RIGHT, 1)
+    agent.move(UP, 4)
+}
+
+このリンクに示される方法に従って計測してください。
+https://pypi.org/project/multimetric/
+
+
+計算をすると
+    "cyclomatic_complexity": 2,
+    "fanout_external": 0,
+    "fanout_internal": 0,
+    "halstead_bugprop": 0.001,
+    "halstead_difficulty": 0.5,
+    "halstead_effort": 1.0,
+    "halstead_timerequired": 0.056,
+    "halstead_volume": 2.0,
+という結果が得られます。
+
+今回はhalstead_difficultyを計測してください。

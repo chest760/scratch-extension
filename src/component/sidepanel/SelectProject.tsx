@@ -22,7 +22,7 @@ const navigate = useNavigate();
         >
 
           <h2 style={{ margin: "10px 0px 5px 0px", textAlign: "center" }}>
-            変数を学ぶ
+            まちをドライブ★
           </h2>
           <div style={{ flexGrow: 1, margin: "0 auto" }}>
             {/* 画像にonClickを追加 */}
@@ -46,7 +46,7 @@ const navigate = useNavigate();
         >
        
           <h2 style={{ margin: "10px 0px 5px 0px", textAlign: "center" }}>
-            並列処理を学ぶ
+            どうぶつレース★★
           </h2>
           <div style={{ flexGrow: 1, margin: "0 auto" }}>
             {/* 画像にonClickを追加 */}
@@ -70,7 +70,7 @@ const navigate = useNavigate();
         >
 
           <h2 style={{ margin: "10px 0px 5px 0px", textAlign: "center" }}>
-            繰り返しを学ぶ
+            バスケット★★★
           </h2>
           <div style={{ flexGrow: 1, margin: "0 auto" }}>
             {/* 画像にonClickを追加 */}
