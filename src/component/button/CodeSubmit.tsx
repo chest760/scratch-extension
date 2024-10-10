@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { isEndType, isStartType } from "../../content/content_script";
 import { BlockEnum } from "../../enum/Block";
 import { Block, BlockType } from "../../types/Block";
 import { CategoryType } from "../../types/Category";
@@ -28,7 +27,7 @@ export const CodeSubmit = () => {
   useLayoutEffect(() => {
     const attach = async () => {
       document.querySelector(".controlundo")?.remove();
-      await sleep(1000);
+      await sleep(1500);
       CategorySelector();
       AttachedId("Motion");
       setIsMount(true)
@@ -189,6 +188,7 @@ export const CodeSubmit = () => {
           const motion = motionMapping(validBlock.id);
           if (!motion) {
             alert("再リロードしてください");
+            setIsGenerating(false);
             return;
           }
           tmp.push({
@@ -219,17 +219,8 @@ export const CodeSubmit = () => {
 
       if (blockArray.length === 0) {
         alert("Any Block does not exist in field");
+        setIsGenerating(false);
         return;
-      }
-      
-      if(!isStartType(blockArray[0].type)){
-        alert("The fisrt block must be start type")
-        return
-      }
-
-      if (!isEndType(blockArray.slice(-1)[0].type)) {
-        alert("The last block must be end type");
-        return
       }
 
       submittedBlock.push(blockArray)
