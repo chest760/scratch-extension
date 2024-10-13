@@ -31,21 +31,25 @@ import { Prompt } from "../prompt/prompt";
 import { Block } from "../types/Block";
 import { CreatePrompt } from "./CreatePrompt";
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY});
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {  
-  if (message.action === "codeBlocks") {
-    console.log(message.content as Block[][])
-    const blocks: Block[][] = message.content
-    const code = CreatePrompt(blocks[0])
-    const quiz: string = message.quiz
 
-    if(quiz.length === 0){
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {  
+  if (message.action === "submitDifficulty") {
+    console.log(message.content as Block[][]);
+    const blocks: Block[][] = message.content;
+    const code = CreatePrompt(blocks[0]);
+    const quiz: string = message.quiz;
+
+    if (quiz.length === 0) {
       sendResponse({
         result: "Failed",
         message: "Please Quiz Page",
       });
-      return true
+      return true;
     }
-    const requestPrompt = Prompt.replace("<program>", code).replace("<quiz>", quiz);
+    const requestPrompt = Prompt.replace("<program>", code).replace(
+      "<quiz>",
+      quiz
+    );
 
     const completion = openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -56,17 +60,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         },
       ],
     });
-    console.log("SLEEP")
-    completion.then((value)=>{
-      console.log(value.choices[0].message.content);
-      sendResponse({result: "Success", message: "Your Request was successed"})
-    }).catch(()=>{
-      sendResponse({
-        result: "Failed",
-        message: "error in generation",
+    console.log("SLEEP");
+    completion
+      .then((value) => {
+        console.log(value.choices[0].message.content);
+        sendResponse({
+          result: "Success",
+          message: "Your Request was successed",
+        });
+      })
+      .catch(() => {
+        sendResponse({
+          result: "Failed",
+          message: "error in generation",
+        });
       });
-    })
-    return true
+    return true;
   }
   return true
 });

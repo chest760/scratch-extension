@@ -3,13 +3,16 @@ import { BlockEnum } from "../../enum/Block";
 import { Block, BlockType } from "../../types/Block";
 import { CategoryType } from "../../types/Category";
 import { Cover } from "../background/cover";
+import { EvaluationPopup } from "../popup/EvaluationPopup";
 
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
   const [quiz, setQuiz] = useState<string>("")
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isMount, setIsMount] = useState<boolean>(false);
+  const [submittedBlock, setsubmittedBlock] = useState<Block[][]>([]);
   const [, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
 
@@ -132,7 +135,7 @@ export const CodeSubmit = () => {
 
   const handleRpeat = (blocks: Block[]): [Block[], number] => {
     const repeatStart = blocks[0].x;
-    const repeatEnd = blocks[0].x + blocks[0].width - 74;
+    const repeatEnd = blocks[0].x + blocks[0].width - 110;
     const repeatBlocks: Block[] = [];
     let i = 1;
     while (i < blocks.length) {
@@ -153,10 +156,9 @@ export const CodeSubmit = () => {
     return [repeatBlocks, i];
   };
 
-
+  
   const onSubmit = () => {
-    setIsGenerating(true)
-    const submittedBlock: Block[][] = []
+    setIsSubmitted(true);
 
     const containers: NodeListOf<HTMLDivElement> | undefined = document.querySelectorAll(".look");    
     for(const container of containers){
@@ -189,6 +191,7 @@ export const CodeSubmit = () => {
           if (!motion) {
             alert("再リロードしてください");
             setIsGenerating(false);
+            setIsSubmitted(false);
             return;
           }
           tmp.push({
@@ -220,24 +223,12 @@ export const CodeSubmit = () => {
       if (blockArray.length === 0) {
         alert("Any Block does not exist in field");
         setIsGenerating(false);
+        setIsSubmitted(false);
         return;
       }
 
-      submittedBlock.push(blockArray)
+      setsubmittedBlock([...submittedBlock, blockArray])
     }
-
-    console.log(submittedBlock)
-  
-
-    chrome.runtime.sendMessage(
-      {action:"codeBlocks", content: submittedBlock, quiz: quiz},
-      function (response) {
-        setIsGenerating(false)
-        if(response.result === "Failed"){
-          alert(response.message)
-        }
-      }
-    );
   };
 
   const motionMapping = (motion: string): BlockType | undefined => {
@@ -322,6 +313,18 @@ export const CodeSubmit = () => {
       {isGenerating ? <Cover color="primary" /> : <></>}
 
       {isMount ? <></> : <Cover color="success" />}
+
+      {/* {!isGenerating && isSubmitted ? } */}
+
+      { isSubmitted ?
+        <EvaluationPopup
+          quiz={quiz}
+          setIsSubmitted={setIsSubmitted}
+          setIsGenerating={setIsGenerating}
+          submittedBlock={submittedBlock}
+        />
+        :<></>
+      }
     </>
   );
 }
