@@ -11,6 +11,6 @@ document.body.appendChild(root);
 
 ReactDOM.createRoot(root).render(
   <React.StrictMode>
-    <CodeSubmit />
+      <CodeSubmit />
   </React.StrictMode>
 );

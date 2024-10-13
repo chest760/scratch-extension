@@ -48,7 +48,8 @@ END
 3. Determine if this program meets what the quiz requires
 
 ##### RETURN FORMAT #####
-You must answer in json format.
+You must answer in json format. Don't include extraneous text.
+
 {
     "result":{
         "success": "true or false"

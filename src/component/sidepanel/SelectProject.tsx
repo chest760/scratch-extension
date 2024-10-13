@@ -1,12 +1,16 @@
 import { Container } from "@mui/material";
+import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import City from "../../assets/City.png";
 import Farm from "../../assets/Farm.png";
 import Gym from "../../assets/Gym.png";
+import { QuizContext } from "../../context/QuizContext";
 import styles from "../../sidepanel/index.module.scss";
-import { useNavigate } from "react-router-dom"; 
 
 export const SelectProject = () => {
-const navigate = useNavigate();
+  const navigate = useNavigate();
+  const useQuizContext = () => useContext(QuizContext);
+  const { setCurrentPage } = useQuizContext();
   return (
     <>
       <h1 className="title">スクラッチ拡張</h1>
@@ -29,7 +33,12 @@ const navigate = useNavigate();
             <img 
               src={Farm} 
               className={styles.farm} 
-              onClick={() => navigate("/variablequiz")} // 画像をクリックしたらnavigateが実行される
+              onClick={() => 
+                {
+                  navigate("/variablequiz")
+                  setCurrentPage(0)
+
+                }} // 画像をクリックしたらnavigateが実行される
               style={{ cursor: "pointer" }} // ポインターを変えることでクリック可能と分かりやすくする
             />
           </div>
@@ -53,7 +62,10 @@ const navigate = useNavigate();
             <img 
               src={City} 
               className={styles.farm} 
-              onClick={() => navigate("/parallelquiz")} // 画像をクリックしたらnavigateが実行される
+              onClick={() => {
+                navigate("/parallelquiz")
+                setCurrentPage(1)
+              }} // 画像をクリックしたらnavigateが実行される
               style={{ cursor: "pointer" }} // ポインターを変えることでクリック可能と分かりやすくする
             />
           </div>
@@ -77,7 +89,10 @@ const navigate = useNavigate();
             <img 
               src={Gym} 
               className={styles.farm} 
-              onClick={() => navigate("/repetitionquiz")} // 画像をクリックしたらnavigateが実行される
+              onClick={() => {
+                navigate("/repetitionquiz")
+                setCurrentPage(2);
+              }} // 画像をクリックしたらnavigateが実行される
               style={{ cursor: "pointer" }} // ポインターを変えることでクリック可能と分かりやすくする
             />
           </div>

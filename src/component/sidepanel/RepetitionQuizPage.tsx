@@ -1,21 +1,36 @@
 import WestIcon from "@mui/icons-material/West";
 import { IconButton } from "@mui/material";
-import { useEffect } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { QuizContext } from "../../context/QuizContext";
 
 export const RepetitionQuizPage = () => {
-  const QUIZ = "やじるしまでドリブルして\nゴールにボールをシュートしてみよう";
   const navigate = useNavigate();
-  useEffect(() => {
+  const useQuizContext = () => useContext(QuizContext);
+  const { currentPage, quiz, setQuiz } = useQuizContext();
+
+  
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0].id)
         chrome.tabs.sendMessage(
           tabs[0].id,
-          { action: "quiz", content: QUIZ },
+          { action: "quiz", currentPage: 2, quiz: quiz[2] },
           () => {}
         );
     });
-  }, []);
+
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "sendNewQuiz") {
+      const newArray = quiz.map((q, index) =>
+        index === currentPage ? message.content : q
+      );
+      setQuiz(newArray);
+      sendResponse(
+        `SET NEW Parallel QUIZ Current Page 2 ${newArray}`
+      );
+    }
+    return true;
+  });
 
   return (
     <div>
@@ -30,7 +45,7 @@ export const RepetitionQuizPage = () => {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <h1 style={{ marginTop: "50px" }}>{QUIZ}</h1>
+        <h1 style={{ marginTop: "50px" }}>{quiz[2]}</h1>
 
         {/* ボタンにスタイルを追加 */}
         <button

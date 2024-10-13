@@ -5,6 +5,7 @@ import { Block } from "../../types/Block";
 type difficulty = "easy" | "normal" | "difficult" | "cannot"
 type Props = {
   quiz: string;
+  currentPage: number;
   setIsSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
   setIsGenerating: React.Dispatch<React.SetStateAction<boolean>>;
   submittedBlock: Block[][];
@@ -29,6 +30,18 @@ export const EvaluationPopup = (
         setIsGenerating(false);
         if (response.result === "Failed") {
           alert(response.message);
+        }else{
+            const res = response.content.replaceAll("```", "").replaceAll("json","")
+            const jsonRes = JSON.parse(res)
+            chrome.runtime.sendMessage(
+              {
+                action: "sendNewQuiz",
+                content: jsonRes["result"]["quiz"],
+              },
+              function (response) {
+                console.log(response);
+              }
+            ); 
         }
       }
     );

@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "submitDifficulty") {
     console.log(message.content as Block[][]);
     const blocks: Block[][] = message.content;
-    const code = CreatePrompt(blocks[0]);
+    const code = CreatePrompt(blocks.slice(-1)[0]);
     const quiz: string = message.quiz;
 
     if (quiz.length === 0) {
@@ -61,18 +61,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       ],
     });
     console.log("SLEEP");
+    console.log(requestPrompt);
     completion
       .then((value) => {
         console.log(value.choices[0].message.content);
         sendResponse({
           result: "Success",
           message: "Your Request was successed",
+          content: value.choices[0].message.content,
         });
       })
       .catch(() => {
         sendResponse({
           result: "Failed",
           message: "error in generation",
+          conotent: null
         });
       });
     return true;

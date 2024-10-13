@@ -8,10 +8,11 @@ import { EvaluationPopup } from "../popup/EvaluationPopup";
 export const CodeSubmit = () => {
   const [selectedBlock, setSelectedBlock] = useState<string>("");
   const [isPointerDown, setIsPointerDown] = useState<boolean>(false);
-  const [quiz, setQuiz] = useState<string>("")
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isMount, setIsMount] = useState<boolean>(false);
+  const [quiz, setQuiz] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(0)
   const [submittedBlock, setsubmittedBlock] = useState<Block[][]>([]);
   const [, setElementNum] = useState<number>(0)
   const sleep = (time: number) => new Promise((r) => setTimeout(r, time));
@@ -39,11 +40,12 @@ export const CodeSubmit = () => {
   }, []);
 
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("###")
     if(message.action === "quiz"){
-      setQuiz(message.content)
+      console.log(message)
+      setCurrentPage(message.currentPage)
+      setQuiz(message.quiz)
+      sendResponse("SET QUIZ")
     }
-    sendResponse("set quiz text")
     return true
   })
 
@@ -319,6 +321,7 @@ export const CodeSubmit = () => {
       { isSubmitted ?
         <EvaluationPopup
           quiz={quiz}
+          currentPage = {currentPage}
           setIsSubmitted={setIsSubmitted}
           setIsGenerating={setIsGenerating}
           submittedBlock={submittedBlock}
