@@ -1,21 +1,34 @@
+import WestIcon from "@mui/icons-material/West";
+import { IconButton } from "@mui/material";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const RepetitionQuizPage = () => {
+  const QUIZ = "やじるしまでドリブルして\nゴールにボールをシュートしてみよう";
+  const navigate = useNavigate();
+  useEffect(() => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0].id)
+        chrome.tabs.sendMessage(
+          tabs[0].id,
+          { action: "quiz", content: QUIZ },
+          () => {}
+        );
+    });
+  }, []);
 
-    const QUIZ =
-      "やじるしまでドリブルして\nゴールにボールをシュートしてみよう";
-    useEffect(() => {
-      chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        if (tabs[0].id)
-          chrome.tabs.sendMessage(
-            tabs[0].id,
-            { action: "quiz", content: QUIZ },
-            () => {}
-          );
-      });
-    }, []);
+  return (
+    <div>
+      <div>
+        <IconButton
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          <WestIcon />
+        </IconButton>
+      </div>
 
-    return (
       <div style={{ textAlign: "center" }}>
         <h1 style={{ marginTop: "50px" }}>{QUIZ}</h1>
 
@@ -76,6 +89,6 @@ export const RepetitionQuizPage = () => {
           できない
         </button>
       </div>
-    );
-  }
-  
+    </div>
+  );
+};

@@ -13,6 +13,7 @@
     "@crxjs/vite-plugin": "^2.0.0-beta.25",
     "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
+    "@mui/icons-material": "^6.1.3",
     "@mui/material": "^6.1.2",
     "@types/chrome": "^0.0.277",
     "dotenv": "^16.4.5",
