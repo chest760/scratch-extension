@@ -19,7 +19,7 @@ export const RepetitionQuizPage = () => {
         );
     });
 
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     if (message.action === "sendNewQuiz") {
       const newArray = quiz.map((q, index) =>
         index === currentPage ? message.content : q

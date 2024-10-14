@@ -32,7 +32,7 @@ import { Block } from "../types/Block";
 import { CreatePrompt } from "./CreatePrompt";
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY});
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {  
+chrome.runtime.onMessage.addListener((message, _, sendResponse) => {  
   if (message.action === "submitDifficulty") {
     console.log(message.content as Block[][]);
     const blocks: Block[][] = message.content;

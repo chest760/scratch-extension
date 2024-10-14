@@ -39,7 +39,7 @@ export const CodeSubmit = () => {
     attach();
   }, []);
 
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     if(message.action === "quiz"){
       console.log(message)
       setCurrentPage(message.currentPage)
