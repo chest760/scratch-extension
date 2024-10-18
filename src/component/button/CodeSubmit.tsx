@@ -30,8 +30,8 @@ export const CodeSubmit = () => {
 
   useLayoutEffect(() => {
     const attach = async () => {
-      document.querySelector(".controlundo")?.remove();
       await sleep(1500);
+      document.querySelector(".controlundo")?.remove();
       CategorySelector();
       AttachedId("Motion");
       setIsMount(true)
