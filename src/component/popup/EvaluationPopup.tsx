@@ -2,7 +2,7 @@ import { Button, Card, CardActions, FormControlLabel, Radio, RadioGroup } from "
 import { useState } from "react";
 import { Block } from "../../types/Block";
 
-type difficulty = "easy" | "normal" | "difficult" | "cannot"
+type difficulty = "easy" | "normal"  | "cannot" | "difficult"
 type Props = {
   quiz: string;
   currentPage: number;
@@ -33,10 +33,21 @@ export const EvaluationPopup = (
         }else{
             const res = response.content.replaceAll("```", "").replaceAll("json","")
             const jsonRes = JSON.parse(res)
+
+            const quiz_description = jsonRes["result"]["quiz"]["quiz_description"]
+            const character = jsonRes["result"]["quiz"]["character"]
+            const rule = jsonRes["result"]["quiz"]["rule"]
+
+            const newQuiz = `
+            もんだい: ${quiz_description}
+            キャラクター: ${character}
+            ルール: ${rule}
+            `
+            
             chrome.runtime.sendMessage(
               {
                 action: "sendNewQuiz",
-                content: jsonRes["result"]["quiz"],
+                content: newQuiz,
               },
               function (response) {
                 console.log(response);
@@ -68,7 +79,7 @@ export const EvaluationPopup = (
         }}
       >
         <Card sx={{ padding: "30px" }}>
-          <h3>この問題は難しかったですか？</h3>
+          <h3>つぎはいまよりもどんなもんだいをときたいですか？</h3>
 
           <RadioGroup
             name="controlled-radio-buttons-group"

@@ -44,9 +44,9 @@ export const CodeSubmit = () => {
       console.log(message)
       setCurrentPage(message.currentPage)
       setQuiz(message.quiz)
-      sendResponse("SET QUIZ")
+      sendResponse()
     }
-    return true
+    return;
   })
 
   const thumbObserver = new MutationObserver(() => {

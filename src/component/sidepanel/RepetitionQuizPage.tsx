@@ -45,7 +45,7 @@ export const RepetitionQuizPage = () => {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <h1 style={{ marginTop: "50px" }}>{quiz[2]}</h1>
+        <h2 style={{ marginTop: "50px" }}>{quiz[2]}</h2>
 
         {/* ボタンにスタイルを追加 */}
         <button

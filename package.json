@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite",
+    "test": "vitest"
   },
   "dependencies": {
     "@crxjs/vite-plugin": "2.0.0-beta.26",
@@ -17,6 +19,7 @@
     "@mui/material": "^6.1.2",
     "@types/chrome": "^0.0.277",
     "dotenv": "^16.4.5",
+    "firebase": "^11.0.1",
     "openai": "^4.67.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

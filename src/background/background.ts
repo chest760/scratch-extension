@@ -1,4 +1,20 @@
 const TARGET_URL = "https://codejr.org/scratchjr/index.html";
+import { collection, addDoc } from "firebase/firestore"; 
+import { db } from "../firebase"
+
+const addDocument = async(
+  {prompt_output, difficulty, name}: 
+  {prompt_output: string,  difficulty: string, name: string}
+)=>{
+  const docRef = await addDoc(collection(db, "output"), {
+    prompt_output,
+    difficulty,
+    name
+  });
+  console.log("Document written with ID: ", docRef.id);
+
+}
+// Add a new document with a generated id.
 
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -46,10 +62,20 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
       });
       return true;
     }
+    var multi = 6;
+    if (message.difficulty === "easy") {
+      multi = 0.75;
+    }else if(message.difficulty === "normal"|| message.difficulty === "cannot"){
+      multi = 1;
+    }else if(message.difficulty === "difficult"){
+      multi = 2;
+    }
+
     const requestPrompt = Prompt.replace("<program>", code).replace(
       "<quiz>",
       quiz
-    );
+    ).replace("<multi>", String(multi));
+
 
     const completion = openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -65,11 +91,31 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     completion
       .then((value) => {
         console.log(value.choices[0].message.content);
-        sendResponse({
-          result: "Success",
+        const name = "example"
+       
+        if (name === null){
+          sendResponse({
+          result: "Unsuccess",
           message: "Your Request was successed",
           content: value.choices[0].message.content,
         });
+        }else{
+          addDocument(
+            {
+              prompt_output: value.choices[0].message.content as string,
+              difficulty: message.difficulty,
+              name : name
+            }
+          )
+          sendResponse({
+            result: "Success",
+            message: "Your Request was successed",
+            content: value.choices[0].message.content,
+          });
+        }
+
+
+
       })
       .catch(() => {
         sendResponse({
