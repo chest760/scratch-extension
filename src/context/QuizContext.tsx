@@ -10,7 +10,8 @@ type QuizContextProps = {
 const Quiz = [
     "くるまをがめんのまんなかで\nとめるにはどうしますか？",
     "いぬ、うさぎ、ぶたの\nじゅんばんでゴールするレースをつくろう",
-    "やじるしまでドリブルして\nゴールにボールをシュートしてみよう"
+    "もんだい：バスケットボールを10かいばうんどさせよう\n　　　　　　　　　　　　　　　　　　 きゃらくたー：バスケットボール　　　　　　　　　　　　　　　　　　　るーる：「くりかえし」をつかおう"
+
 ];
 
 export const QuizContext = createContext<QuizContextProps>({

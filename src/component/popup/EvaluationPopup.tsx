@@ -38,11 +38,9 @@ export const EvaluationPopup = (
             const character = jsonRes["result"]["quiz"]["character"]
             const rule = jsonRes["result"]["quiz"]["rule"]
 
-            const newQuiz = `
-            もんだい: ${quiz_description}
-            キャラクター: ${character}
-            ルール: ${rule}
+            const newQuiz = `もんだい: ${quiz_description}\nきゃらくたー: ${character}\nるーる: ${rule}
             `
+
             
             chrome.runtime.sendMessage(
               {

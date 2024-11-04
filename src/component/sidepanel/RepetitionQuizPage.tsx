@@ -8,6 +8,7 @@ export const RepetitionQuizPage = () => {
   const navigate = useNavigate();
   const useQuizContext = () => useContext(QuizContext);
   const { currentPage, quiz, setQuiz } = useQuizContext();
+  
 
   
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -48,7 +49,7 @@ export const RepetitionQuizPage = () => {
         <h2 style={{ marginTop: "50px" }}>{quiz[2]}</h2>
 
         {/* ボタンにスタイルを追加 */}
-        <button
+        {/* <button
           style={{
             backgroundColor: "red", // 赤色
             color: "white",
@@ -102,7 +103,7 @@ export const RepetitionQuizPage = () => {
           }}
         >
           できない
-        </button>
+        </button> */}
       </div>
     </div>
   );

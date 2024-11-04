@@ -1,6 +1,7 @@
 const TARGET_URL = "https://codejr.org/scratchjr/index.html";
-import { collection, addDoc } from "firebase/firestore"; 
+import { collection, addDoc, serverTimestamp } from "firebase/firestore"; 
 import { db } from "../firebase"
+
 
 const addDocument = async(
   {prompt_output, difficulty, name}: 
@@ -9,12 +10,23 @@ const addDocument = async(
   const docRef = await addDoc(collection(db, "output"), {
     prompt_output,
     difficulty,
-    name
+    name,
+    sendAt: serverTimestamp()
+
   });
   console.log("Document written with ID: ", docRef.id);
 
 }
 // Add a new document with a generated id.
+
+const getName = (): Promise<string | null> => { 
+  return new Promise((resolve)=>{
+    chrome.storage.session.get("name", (value)=>{
+      const name = value.name !== "" && value.name !== null ? value.name : null
+      resolve(name)
+    })
+  })
+} 
 
 
 chrome.tabs.onActivated.addListener((activeInfo) => {
@@ -62,7 +74,8 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
       });
       return true;
     }
-    var multi = 6;
+    var Halstead_difficulty = 3;
+    var multi = 1;
     if (message.difficulty === "easy") {
       multi = 0.75;
     }else if(message.difficulty === "normal"|| message.difficulty === "cannot"){
@@ -70,11 +83,12 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     }else if(message.difficulty === "difficult"){
       multi = 2;
     }
+    Halstead_difficulty = Halstead_difficulty*multi;
 
     const requestPrompt = Prompt.replace("<program>", code).replace(
       "<quiz>",
       quiz
-    ).replace("<multi>", String(multi));
+    ).replace("<Halstead_difficulty>", String(Halstead_difficulty));
 
 
     const completion = openai.chat.completions.create({
@@ -89,10 +103,9 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     console.log("SLEEP");
     console.log(requestPrompt);
     completion
-      .then((value) => {
+      .then(async (value) => {
         console.log(value.choices[0].message.content);
-        const name = "example"
-       
+        const name = await getName()
         if (name === null){
           sendResponse({
           result: "Unsuccess",
@@ -104,7 +117,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
             {
               prompt_output: value.choices[0].message.content as string,
               difficulty: message.difficulty,
-              name : name
+              name : name,
             }
           )
           sendResponse({
@@ -117,7 +130,8 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
 
 
       })
-      .catch(() => {
+      .catch((e) => {
+        console.log(e)
         sendResponse({
           result: "Failed",
           message: "error in generation",

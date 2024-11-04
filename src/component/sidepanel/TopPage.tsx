@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import styles from "../../styles/TopPage.module.scss";
 
+
 export const TopPage = () => {
     const navigate = useNavigate();
     const [text, setText] = useState(""); // 入力内容を保持する状態を追加
@@ -26,7 +27,7 @@ export const TopPage = () => {
 
         <button 
           onClick={() => {
-            sessionStorage.setItem('name',text);
+            chrome.storage.session.set({"name": text})
             navigate("/select")
             }} 
           className={styles.btn}>

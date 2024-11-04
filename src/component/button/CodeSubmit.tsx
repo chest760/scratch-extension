@@ -309,7 +309,7 @@ export const CodeSubmit = () => {
         }}
         onClick={onSubmit}
       >
-        Submit
+       ていしゅつ
       </button>
 
       {isGenerating ? <Cover color="primary" /> : <></>}
