@@ -15,6 +15,10 @@ export type Quiz = {
     rule: string
 }
 
+export type QuizWithDifficulty = Quiz &  {
+    halstead_difficulty: string
+}
+
 export type PromptResult = {
     success: boolean
     complexity: Complexity

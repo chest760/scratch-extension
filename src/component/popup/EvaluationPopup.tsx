@@ -1,10 +1,11 @@
 import { Button, Card, CardActions, FormControlLabel, Radio, RadioGroup } from "@mui/material";
 import { useState } from "react";
 import { Block } from "../../types/Block";
+import { Result, QuizWithDifficulty } from "../../types/Prompt";
 
 type difficulty = "easy" | "normal"  | "cannot" | "difficult"
 type Props = {
-  quiz: string;
+  quiz: QuizWithDifficulty;
   currentPage: number;
   setIsSubmitted: React.Dispatch<React.SetStateAction<boolean>>;
   setIsGenerating: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,24 +25,28 @@ export const EvaluationPopup = (
   const handleSumbit = () => {
     setIsGenerating(true);
     setIsSubmitted(false);
+
+    const quizDescription = `もんだい: ${quiz.quiz_description}, キャラクター: ${quiz.character}, ルール: ${quiz.rule}`
     chrome.runtime.sendMessage(
-      { action: "submitDifficulty", content: submittedBlock, quiz: quiz, difficulty: value },
+      { action: "submitDifficulty", content: submittedBlock, quiz: quizDescription, difficulty: value, halstead_difficulty: Number(quiz.halstead_difficulty) },
       function (response) {
         setIsGenerating(false);
         if (response.result === "Failed") {
           alert(response.message);
         }else{
+          try{
             const res = response.content.replaceAll("```", "").replaceAll("json","")
-            const jsonRes = JSON.parse(res)
-
-            const quiz_description = jsonRes["result"]["quiz"]["quiz_description"]
-            const character = jsonRes["result"]["quiz"]["character"]
-            const rule = jsonRes["result"]["quiz"]["rule"]
-
-            const newQuiz = `もんだい: ${quiz_description}\nきゃらくたー: ${character}\nるーる: ${rule}
-            `
+            const jsonRes: Result = JSON.parse(res) satisfies Result
+  
+            const newQuiz: QuizWithDifficulty  = {
+              quiz_description: jsonRes.result.quiz.quiz_description,
+              character: jsonRes.result.quiz.character,
+              rule: jsonRes.result.quiz.rule,
+              halstead_difficulty: jsonRes.result.complexity.halstead_difficulty
+            }
 
             
+
             chrome.runtime.sendMessage(
               {
                 action: "sendNewQuiz",
@@ -51,6 +56,9 @@ export const EvaluationPopup = (
                 console.log(response);
               }
             ); 
+          }catch (e){
+            console.log(e)
+          }
         }
       }
     );

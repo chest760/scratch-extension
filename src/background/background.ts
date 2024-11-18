@@ -66,6 +66,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     const blocks: Block[][] = message.content;
     const code = CreatePrompt(blocks.slice(-1)[0]);
     const quiz: string = message.quiz;
+    var halstead_difficulty = message.halstead_difficulty
 
     if (quiz.length === 0) {
       sendResponse({
@@ -74,7 +75,7 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
       });
       return true;
     }
-    var Halstead_difficulty = 3;
+
     var multi = 1;
     if (message.difficulty === "easy") {
       multi = 0.75;
@@ -83,12 +84,12 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
     }else if(message.difficulty === "difficult"){
       multi = 2;
     }
-    Halstead_difficulty = Halstead_difficulty*multi;
+    halstead_difficulty = halstead_difficulty * multi;
 
     const requestPrompt = Prompt.replace("<program>", code).replace(
       "<quiz>",
       quiz
-    ).replace("<Halstead_difficulty>", String(Halstead_difficulty));
+    ).replace("<Halstead_difficulty>", String(halstead_difficulty));
 
 
     const completion = openai.chat.completions.create({

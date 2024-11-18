@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Scratch Jr Extension",
   "version": "1.0.0",
-  "permissions": ["sidePanel", "tabs", "activeTab", "storage"],
+  "permissions": ["sidePanel", "tabs", "storage"],
   "icons": {
     "16":  "src/icon/icon16.png",
     "32":  "src/icon/icon32.png",

@@ -8,9 +8,7 @@ export const RepetitionQuizPage = () => {
   const navigate = useNavigate();
   const useQuizContext = () => useContext(QuizContext);
   const { currentPage, quiz, setQuiz } = useQuizContext();
-  
-
-  
+    
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0].id)
         chrome.tabs.sendMessage(
@@ -46,7 +44,11 @@ export const RepetitionQuizPage = () => {
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <h2 style={{ marginTop: "50px" }}>{quiz[2]}</h2>
+        <h2 style={{ marginTop: "50px" }}>
+          もんだい: {quiz[2].quiz_description}<br/>
+          キャラクター: {quiz[2].character}<br/>
+          ルール: {quiz[2].rule}<br/>
+        </h2>
 
         {/* ボタンにスタイルを追加 */}
         {/* <button

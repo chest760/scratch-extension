@@ -46,7 +46,11 @@ export const VariableQuizPage = () => {
         </IconButton>
       </div>
       <div style={{ textAlign: "center" }}>
-        <h1 style={{ marginTop: "50px" }}>{quiz[0]}</h1>
+      <h2 style={{ marginTop: "50px" }}>
+          もんだい: {quiz[0].quiz_description}<br/>
+          キャラクター: {quiz[0].character}<br/>
+          ルール: {quiz[0].rule}<br/>
+      </h2>
 
         {/* ボタンにスタイルを追加 */}
         <button

@@ -44,7 +44,11 @@ export const ParallelQuizPage = () => {
         </IconButton>
       </div>
       <div style={{ textAlign: "center" }}>
-        <h1 style={{ marginTop: "50px" }}>{quiz[1]}</h1>
+        <h2 style={{ marginTop: "50px" }}>
+          もんだい: {quiz[1].quiz_description}<br/>
+          キャラクター: {quiz[1].character}<br/>
+          ルール: {quiz[1].rule}<br/>
+        </h2>
 
         {/* ボタンにスタイルを追加 */}
         <button

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { BlockEnum } from "../../enum/Block";
 import { Block, BlockType } from "../../types/Block";
+import { QuizWithDifficulty } from "../../types/Prompt";
 import { CategoryType } from "../../types/Category";
 import { Cover } from "../background/cover";
 import { EvaluationPopup } from "../popup/EvaluationPopup";
@@ -11,7 +12,7 @@ export const CodeSubmit = () => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [isMount, setIsMount] = useState<boolean>(false);
-  const [quiz, setQuiz] = useState<string>("");
+  const [quiz, setQuiz] = useState<QuizWithDifficulty | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(0)
   const [submittedBlock, setsubmittedBlock] = useState<Block[][]>([]);
   const [, setElementNum] = useState<number>(0)
@@ -160,6 +161,11 @@ export const CodeSubmit = () => {
 
   
   const onSubmit = () => {
+    if(quiz === null) {
+      alert("問題が認識されていません")
+      return
+    }
+
     setIsSubmitted(true);
 
     const containers: NodeListOf<HTMLDivElement> | undefined = document.querySelectorAll(".look");    
@@ -318,7 +324,7 @@ export const CodeSubmit = () => {
 
       {/* {!isGenerating && isSubmitted ? } */}
 
-      { isSubmitted ?
+      { isSubmitted && quiz ?
         <EvaluationPopup
           quiz={quiz}
           currentPage = {currentPage}
